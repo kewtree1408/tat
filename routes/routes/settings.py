@@ -26,6 +26,18 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+REST_FRAMEWORK = {
+    'DEFAULT_MODEL_SERIALIZER_CLASS': (
+        'rest_framework.serializers.HyperlinkedModelSerializer',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAdminUser',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.UnicodeJSONRenderer',
+    ),
+    'PAGINATE_BY': 200,
+}
 
 # Application definition
 
@@ -37,6 +49,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'rest_framework',
 )
 
 MIDDLEWARE_CLASSES = (
