@@ -1,0 +1,106 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Расписание ТАТ</title>
+
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.css">
+    <link type="text/css" rel="stylesheet" href="css/backbone.modal.css">
+    <link type="text/css" rel="stylesheet" href="css/backbone.modal.theme.css">
+    <link type="text/css" rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+    <div class="container" id="tatApp">
+        <div class="app"></div>
+        <div class="page-header">
+            <h1>Расписание Трамваев, Автобусов, Тролейбусов</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-inline" role="form">
+                    <div class="form-group">
+                        <label class="sr-only" for="tatType">Тип трансторта</label>
+                        <select class="form-control" id="tatType">
+                            <option value="">Все</option>
+                            <option value="trol">Тролейбус</option>
+                            <option value="avto">Автобус</option>
+                            <option value="tram">Трамвай</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="sr-only" for="day">Тип трансторта</label>
+                        <select class="form-control" id="day">
+                            <option value="">Сегодня</option>
+                            <option value="0">Понедельник</option>
+                            <option value="1">Вторник</option>
+                            <option value="2">Среда</option>
+                            <option value="3">Четверг</option>
+                            <option value="4">Пятница</option>
+                            <option value="5">Суббота</option>
+                            <option value="6">Воскресение</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="sr-only" for="tatNumber">Номер маршрута</label>
+                        <input type="text" class="form-control typeahead" id="tatNumber" placeholder="Номер маршрута">
+                    </div>
+                    <div class="form-group">
+                        <label class="sr-only" for="stopName ">Название остановки</label>
+                        <input type="text" class="form-control typeahead" id="stopName" placeholder="Название остановки">
+                    </div>
+                    <button type="submit" class="btn btn-default" id="findBtn">найти</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="waypointsMain">
+            <div class="col-md-12">
+                <table class="table table-hover">
+                    <thead>
+                        <tr><th>Маршрут</th><th>Остановка</th><th>Направление</th><th>Расписание</th></tr>
+                    </thead>
+                    <tbody id="waypointsList">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates -->
+    <script type="text/template" id="waypoint-item-template">
+        <td><%- route_title %></td><td><%- stop_title %></td>
+        <td><%- to %></td>
+        <td><%- near_times.join(", ") %></td>
+    </script>
+    <script type="text/template" id="modal-template">
+        <div class="bbm-modal__topbar">
+            <h2 class="bbm-modal__title"><b><%- route_title %></b>: <%- stop_title %></h2>
+        </div>
+        <div class="bbm-modal__section">
+            <p><b>до <%- to %>:</b></p>
+            <% for ( var i = 0; i < all_times.length; i++ ) { %>
+                <% if (i + 1 >= all_times.length || all_times[i+1].split(":")[0] != all_times[i].split(":")[0]) { %>
+                    <i><%- all_times[i] %></i><br/>
+                <% } else { %>
+                    <i><%- all_times[i] %></i>
+                    <% if (i + 1 < all_times.length) {%><i>, </i><%} %>
+                <% } %>
+            <% } %>
+        </div>
+        <div class="bbm-modal__bottombar">
+            <a href="#" class="bbm-button">Закрыть</a>
+        </div>
+    </script>
+
+    <!-- Scripts -->
+    <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+    <script type="text/javascript" src="js/backbone-min.js"></script>
+    <script type="text/javascript" src="js/backbone.modal-min.js"></script>
+    <script type="text/javascript" src="js/typeahead.bundle.js"></script>
+    <script type="text/javascript" src="js/handlebars.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+</body>
+</html>

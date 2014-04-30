@@ -50,5 +50,14 @@ urlpatterns += patterns('core.views',
         views.TimeDetail.as_view()),
 )
 
+# input: номер маршрута или название остановки
+# output: полное название маршрута или остановки
+# example: tat.people.yandex.net/part_name=626
+
+urlpatterns += patterns('core.views',
+    (r'^part_name=(?P<part_name>.*)$',
+        views.StopAndRouteNameDetail.as_view()),
+)
+
 
 urlpatterns = format_suffix_patterns(urlpatterns)

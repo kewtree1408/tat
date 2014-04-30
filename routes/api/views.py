@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from core.utils import humanized_days_to_flags
 from core.models import TatType, Stop, Route, Direction, Waypoint, WaypointTime
 
-from serializers import StopSerializer, TimeSerializer, RouteSerializer, TimeWithDirectionSerializer
+from serializers import StopSerializer, TimeSerializer, RouteSerializer, TimeWithDirectionSerializer, InputSerializer
 
 import datetime
 
@@ -76,4 +76,14 @@ class RouteDetail(APIView):
         return Response(serializer.data)
 
 
+class StopAndRouteNameDetail(APIView):
 
+    def get_names(self, part_name):
+        names = Waypoint.objects.filter(Q(stop__title__contains=part_name) | Q(direction__route__tat_number__contains=part_name) 
+            | Q(direction__route__tat_type__title__contains=part_name)).distinct()
+        return names.order_by('stop__title')
+
+    def get(self, request, part_name):
+        names = self.get_names(part_name)
+        serializer = InputSerializer(names)
+        return Response(serializer.data)
