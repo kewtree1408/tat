@@ -130,3 +130,7 @@ p + p {
     rtl-support.tt-dropdown-menu {
         text-align: right;
     }
+
+#waypointsList tr {
+  cursor: pointer;
+}
