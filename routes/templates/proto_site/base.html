@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Расписание Троллейбусов, Автобусов, Трамваев (г. Москва)</title>
+    <style>
+        .letter {
+            color: darkblue;
+            font-size: 100%;
+        }
+        .hour {
+            color: darkblue;
+            font-family: Arial;
+            font-size: 18pt;
+            margin: 0 -3px 0 10px;
+            text-align: right;
+        }
+        .alone_hour {
+            color: darkblue;
+            font-family: Arial;
+            font-size: 20pt;
+            margin: 0px 28px 10px 0px;
+            text-align: right;
+        }
+        .minutes {
+            font-family: Arial;
+            font-size: 9pt;
+            margin: 0 5px 1px 0px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .all_minutes {
+            font-family: Arial;
+            font-size: 10pt;
+            margin: 0 5px 1px 0px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .title_route {
+            color: darkblue;
+            font-size: 18pt;
+            margin: 5px 0px;
+            text-align: left;
+            text-decoration: underline;
+        }
+        .little_direction {
+            color: gray;
+            font-size: 10pt;
+            text-align: left;
+        }
+        .order {
+            font-size: 10pt;
+            text-align: left;
+        }
+        .info_route {
+            font-size: 11pt;
+            text-align: left;
+            margin: 15px 0px 15px 40px;
+        }
+        .unit {
+            margin: 0px -2px 0px 0px;
+        }
+
+    </style>
+    <!-- Le styles -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-responsive.min.css" rel="stylesheet">
+    <!-- <link href="/cards/manage/static/css/bootstrap.min.css" rel="stylesheet"> -->
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+    {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+    {% block extrahead %}
+    {% endblock %}
+</head>
+
+<body>
+{% block navbar %}
+    <div class="navbar navbar-static-top">
+        <div class="navbar-inner">
+            {% block nav %}
+                <a class="brand" href="/prototype/">Расписание <span class="letter">Т</span>роллейбусов,
+                                                                    <span class="letter">А</span>втобусов,
+                                                                    <span class="letter">Т</span>рамваев (г. Москва) </a>
+                <!-- <ul class="nav">
+                    <li{% if "index" == active_page %} class="active"{% endif %}><a href="">Оставить отзыв</a></li>
+                </ul> -->
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}
+
+    <div class="container">
+        {% block messages %}
+            <div id="ajaxalert" class="hidden">
+                <p></p>
+                <div class="alert">
+                    <span id="ajaxalertmessage"></span>
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+            </div>
+        {% endblock %}
+
+        <p></p>
+        {% block content %}
+        
+        {% endblock %}
+    </div>
+    <!-- /container -->
+
+    <!-- <hr> -->
+    <!--     <div class="row"><p></p></div>
+        <div class="row"><p></p></div> -->
+
+    <script src="/static/js/jquery-1.8.2.js"></script>
+    <!-- <script src="/static/js/jquery-1.8.2.min.js"></script> -->
+    <script src="/static/js/bootstrap.js"></script>
+    <!-- <script src="/static/js/bootstrap.min.js"></script> -->
+    <script src="/static/frontend/app/main.js"></script>
+    <script src="/static/frontend/app/app.js"></script>
+    {% block extrascript %}
+    {% endblock %}
+</body>
+</html>

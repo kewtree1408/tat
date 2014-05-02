@@ -1,0 +1,60 @@
+{
+    "name": "Base config",
+
+    "version": "0.1",
+
+    "root": "../",
+
+    "modules": {
+
+        "$": {
+            "path": [
+                "vendor/jquery/jquery-2.1.0.min.js",
+                "vendor/jquery/plugins/jquery-debounce-min.js"
+            ],
+            "exports": "jQuery"
+        },
+
+        "_": {
+            "path": "vendor/lodash/lodash-2.4.1.min.js",
+            "exports": "_"
+        },
+
+        "Handlebars": {
+            "path": "vendor/handlebars/handlebars-v1.3.0.js",
+            "exports": "Handlebars"
+        },
+
+        "underscore": "@_",
+
+        "Backbone": {
+            "path": "vendor/backbone/backbone-1.1.0.js",
+            "require": {
+                "underscore": "_",
+                "jQuery": "$"
+            },
+            "exports": "Backbone"
+        },
+
+        "Main": "app/main.js",
+        "App": "app/app.js",
+        "Router": "app/router.js",
+
+        "routes/<%= file %>":        "app/routes/*.js",
+        "models/<%= file %>":        "app/models/*.js",
+        "collections/<%= file %>":   "app/collections/*.js",
+        "views/<%= file %>":         "app/views/*/*.js",
+        "tpl/<%= file %>":           "app/views/*/*.html"
+    },
+
+    "styles": [
+        "vendor/css/*.css",
+        "app/views/*/*.css"
+    ],
+
+    "main": "Main",
+
+    "css": true,
+
+    "shortcuts": true
+}

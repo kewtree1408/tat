@@ -1,0 +1,38 @@
+{{#if keyHash}}
+<div class="view-level__header">
+    <h1 class="view-level__progress-info">
+        Уровень {{current}} <small>/ {{total}}</small>
+    </h1>
+
+    <div class="view-level__help">
+        <a href="https://twitter.com/viQuestHelp" target="_blank">@viQuestHelp</a>
+    </div>
+</div>
+
+<div class="view-level__content">
+    {{#if image}}
+    <img class="view-level__image" src="/img/{{image}}" />
+    <span class="view-level__location">{{location}}</span>
+    {{else}}
+    <div class="view-level__image">
+        <i class="fa fa-code"></i>
+    </div>
+    {{/if}}
+</div>
+
+<div class="view-level__controls">
+
+    <div class="view-level__key">
+        <i class="view-level__lock fa fa-lock"></i>
+        <input type="input" placeholder="Ключ" value="{{key}}" class="view-level__key-input">
+    </div>
+
+
+    <div class="view-level__progress">
+        <div class="view-level__progress-bar">
+            <span style="width: {{_progress}}%"></span>
+        </div>
+    </div>
+
+</div>
+{{/if}}

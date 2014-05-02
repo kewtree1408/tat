@@ -1,0 +1,13 @@
+.view-success {
+    text-align: center;
+}
+
+.view-success__video {
+    padding: 15px 0 5px;
+}
+
+.view-success__icon {
+    text-align: center;
+    font-size: 40px;
+    color: #FFF;
+}

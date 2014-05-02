@@ -1,0 +1,57 @@
+.view-auth {}
+
+.view-auth__icon {
+    text-align: center;
+    font-size: 40px;
+    color: #FFF;
+    margin-top: 40px;
+}
+
+.view-auth__controls {
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    right: 20px;
+}
+
+.view-auth__content {
+    padding: 1em 0;
+    text-align: center;
+}
+
+.view-auth__key {
+    border: 1px solid #CCC;
+    background-color: #FFF;
+    padding: 10px;
+}
+
+.view-auth__key-input {
+    display: block;
+    width: 80%;
+    border: 0;
+    font-size: 30px;
+    color: #333;
+}
+
+.view-auth__key-input:focus {
+    outline: none;
+}
+
+.view-auth__key-input[disabled] {
+    color: #999;
+}
+
+.view-auth__lock {
+    display: block;
+    float: right;
+    margin: 10px;
+    font-size: 30px;
+}
+
+.view-auth__lock.fa-lock {
+    color: #999;
+}
+
+.view-auth__lock.fa-unlock {
+    color: #57b666;
+}
