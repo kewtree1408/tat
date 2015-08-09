@@ -1,0 +1,172 @@
+{% extends "proto_site/base.html" %}
+
+{% block content %}
+
+<div class="title_route"> Информация о маршруте: </div>
+<div id="show_error" class="alert alert-error"  hidden="" > </div>
+<div class="info_route" id="type_tat"> Тип транспорта: </div>
+<div class="info_route" id="number"> Номер: </div>
+<div class="info_route" id="stop"> Название остановки: </div>
+<div class="info_route"> День недели: </div>
+
+<div class="info_route">
+    <ul class="nav nav-tabs" id="myTab">
+        {% for i, day in weekdays %}
+            <li id="id_{{i}}">
+                <a href="#day_{{i}}" data-toggle="tab">{{day}}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="info_route">
+    <div class="tab-content">
+        {% for iday,day in weekdays %}
+        <div class="tab-pane" id="day_{{iday}}">
+            <table id="timetable" class="table table-condensed table-striped">
+                <thead>
+                    <tr>
+                        <th class="span6" id="direction1_{{iday}}">Направление 1</th>
+                        <th class="span2"> </th>
+                        <th class="span6" id="direction2_{{iday}}">Направление 2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="tr_{{iday}}_{{j}}">
+                        <td class="span6">
+                            {% for j in range_times %}
+                            <span class="unit">
+                                <span class="hour" id="hour1_{{iday}}_{{j}}"></span>
+                                <span class="minutes" id="minutes1_{{iday}}_{{j}}"></span>
+                            </span>
+                            {% endfor %}
+                        </td>
+                        <td class="span2"> </td>
+                        <td class="span6">
+                            {% for j in range_times %}
+                            <span class="unit">
+                                <span class="hour" id="hour2_{{iday}}_{{j}}"></span>
+                                <span class="minutes" id="minutes2_{{iday}}_{{j}}"></span>
+                            </span>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+    <script type="text/javascript">
+        $(function () {
+
+            function get_weekday() {
+                var d = new Date();
+                var day = d.getUTCDate();
+                var month = d.getUTCMonth();
+                var weekday = '';
+                // Новогодние праздники
+                if (month == 0 && day >= 1 && day <=8)
+                    return 0; // Воскресенье
+
+                return d.getUTCDay();
+            }
+
+
+            function get_name_weekday(day) {
+                weekday = '';
+                switch (day) {
+                    case 0: weekday='воскресенье'; break;
+                    case 1: weekday='понедельник'; break;
+                    case 2: weekday='вторник'; break;
+                    case 3: weekday='среда'; break;
+                    case 4: weekday='четверг'; break;
+                    case 5: weekday='пятница'; break;
+                    case 6: weekday='суббота'; break;
+                }
+                return weekday;
+            }
+
+            var set_dir = 1;
+
+            function show_times(data) {
+                if (data.count == 0) {
+                    $("#show_error").text("Нет данных о маршруте с такими параметрами");
+                    $("#show_error").removeAttr("hidden");
+                    $(".tab-content").prop("hidden", true);
+                    return ;
+                }
+                $("#show_error").prop("hidden", true);
+                $(".tab-content").removeAttr("hidden");
+
+                var count_hour = 20;
+                var number_type = data.resources[0].route_title.split(" ");
+                var stop = data.resources[0].stop_title;
+                $("#type_tat").text("Тип транспорта: "+number_type[0]);
+                $("#number").text("Номер: "+number_type[1]);
+                $("#stop").text("Название остановки: "+stop);
+                var first_last = data.resources[0].direction_title.split(" - ");
+                var dir1 = first_last[0]+ " - " + first_last[1];
+                var dir2 = first_last[1]+ " - " + first_last[0];
+                var iday = Number(current_day);
+                $("#direction1_"+iday).text(dir1);
+                $("#direction2_"+iday).text(dir2);
+
+                var length = data.count;
+                var night_times = new Array();
+                var idx = 0;
+                for (var i=0; i<length; i++) {
+                    var hour_min_sec = data.resources[i].time.split(":");
+                    if (hour_min_sec[0] > 4) {
+                        $("#hour"+set_dir+"_"+iday+"_"+idx).text(hour_min_sec[0]);
+                        $("#minutes"+set_dir+"_"+iday+"_"+idx).text(hour_min_sec[1]);
+                        idx++;
+                    }
+                    else {
+                        night_times.push(data.resources[i].time);
+                    }
+                }
+                // отображаем ночное время в самом конце
+                var len_ntimes = night_times.length;
+                for (var j=0; j<len_ntimes; j++) {
+                    var hour_min_sec = night_times[j].split(":");
+                    $("#hour"+set_dir+"_"+iday+"_"+idx).text(hour_min_sec[0]);
+                    $("#minutes"+set_dir+"_"+iday+"_"+idx).text(hour_min_sec[1]);
+                    idx++;
+                }
+                if (length < 24*60) {
+                    for (var j=length; j<24*60; j++) {
+                        $("#tr_"+iday+"_"+j).prop("hidden", true);
+                    }
+                }
+                // alert(get_name_weekday(iday));
+
+                if (set_dir == 1) {
+                    set_dir = 2;
+                    $.get("/title_tat=" + number_type[0] + "_" + number_type[1] + "&stop=" + stop + "&day=" + get_name_weekday(iday) + "&direction=" + dir2, "", show_times, "json");
+                }
+            }
+
+
+            var current_day = get_weekday();
+            $("#id_"+current_day).addClass("active");
+            $("#day_"+current_day).addClass("active");
+
+            $.get("/api/1.0.0/waypointtime/?waypoint__id="+{{id}}+"&weekdays="+get_name_weekday(current_day)+"&adr-sort=time", "", show_times, "json");
+
+
+            $('#myTab a').click(function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+                set_dir = 1;
+                current_day = $(".active").attr("id").split("_")[1];
+
+                $.get("/api/1.0.0/waypointtime/?waypoint__id="+{{id}}+"&weekdays="+get_name_weekday(current_day)+"&adr-sort=time", "", show_times, "json");
+            });
+        })
+    </script>
+{% endblock %}

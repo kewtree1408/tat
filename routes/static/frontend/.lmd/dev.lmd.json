@@ -1,0 +1,17 @@
+{
+    "name": "Development build config",
+
+    "root": "../frontend/",
+
+    "extends": "./base.lmd.json",
+
+    "output": "../public/app.js",
+
+    "styles_output": "../public/app.css",
+
+    "log": true,
+
+    "warn": true,
+
+    "pack": false
+}

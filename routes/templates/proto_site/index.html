@@ -1,0 +1,404 @@
+{% extends "proto_site/base.html" %}
+
+{% block content %}
+    <div class="row-fluid">
+        <div class="span6">
+            <div class="input">
+                <form class="text" id="route_form">
+                    {{ route_form }}
+                </form>
+            </div>
+        </div>
+
+        <div class="span6">
+            <div class="input">
+                <form class="text" id="stop_form">
+                    <!-- {% csrf_token %} -->
+                    {{ stop_form }}
+                    <!-- <br> -->
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="current_time" class="alert alert-info"  hidden="" > </div>
+    <!-- <div id="invoke_func" class="alert alert-info" > </div> -->
+    <div id="show_error" class="alert alert-error"  hidden="" > </div>
+
+    <table id="timetable" class="table table-condensed table-striped" hidden="">
+    <thead>
+        <tr>
+            <th class="span3">Название остановки</th>
+            <th class="span4" id="direction1"></th>
+            <th class="span1"> </th>
+            <th class="span4" id="direction2"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in range_counters %}
+        <tr id="tr_{{i}}">
+            <td class="span3">
+                <a id="stop_{{i}}" href="" ></a>
+            </td>
+
+            <td class="span4" id="direction1_{{i}}">
+            {% for j in range_times %}
+            <span class="unit">
+                <span class="hour" id="hour1_{{i}}_{{j}}"></span>
+                <span class="minutes" id="minutes1_{{i}}_{{j}}"></span>
+            </span>
+            {% endfor %}
+            <a class="hour dir1" href="">...</a>
+            </td>
+            <td class="span1"> </td>
+            <td class="span4" id="direction2_{{i}}">
+            {% for j in range_times %}
+            <span class="unit">
+                <span class="hour" id="hour2_{{i}}_{{j}}"></span>
+                <span class="minutes" id="minutes2_{{i}}_{{j}}"></span>
+            </span>
+            {% endfor %}
+            <a class="hour dir2" href="">...</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+
+    <table id="route_timetable" class="table table-condensed table-striped" hidden="">
+    <thead>
+        <tr>
+            <th class="span4">Информация о маршруте</th>
+            <th class="span8">Время</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in range_counters %}
+        <tr id="route_tr_{{i}}">
+            <td class="span4">
+                <a class="title_route" id="title_route_{{i}}" href=""></a>
+                <div class="title_stop" id="title_stop_{{i}}"></div>
+                <div class="little_direction" id="little_direction_{{i}}"></div>
+                <div class="order" id="order_{{i}}"></div>
+            </td>
+
+            <td class="span8">
+                {% for j in range_counters %}
+                <span class="unit">
+                    <span class="hour" id="hour_{{i}}_{{j}}"></span>
+                    <span class="minutes" id="minutes_{{i}}_{{j}}"></span>
+                </span>
+                {% endfor %}
+                <a class="hour more_{{i}}" href="">...</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+
+
+{% endblock %}
+
+{% block extrascript %}
+    <script src="/static/frontend/app/main.js"></script>
+
+    <script type="text/javascript">
+        var search_route = $("#route_form");
+        if (search_route.value == "") {
+            search_route.focus();
+        }
+
+        $('span[data-toggle="popover"]').popover();
+
+        $(function () {
+
+            function get_hour() {
+                var d = new Date();
+                var hour = d.getUTCHours();
+                var zone = -d.getTimezoneOffset()/60;
+                if (hour+zone>=24) {
+                    return hour+zone-24;
+                }
+                return hour+zone;
+            }
+
+            function get_minutes(){
+                var d = new Date();
+                var minutes = d.getUTCMinutes();
+                if (d.getUTCMinutes() < 10)
+                    minutes = '0'+minutes;
+                return minutes;
+            }
+
+            function get_weekday() {
+                var d = new Date();
+                var day = d.getUTCDate();
+                var month = d.getUTCMonth();
+                var weekday = '';
+                // Новогодние праздники
+                if (month == 0 && day >= 1 && day <=8)
+                    return 'воскресенье';
+
+                switch (d.getUTCDay()) {
+                    case 0: weekday='воскресенье'; break;
+                    case 1: weekday='понедельник'; break;
+                    case 2: weekday='вторник'; break;
+                    case 3: weekday='среда'; break;
+                    case 4: weekday='четверг'; break;
+                    case 5: weekday='пятница'; break;
+                    case 6: weekday='суббота'; break;
+                }
+                return weekday;
+            }
+
+            function get_seconds() {
+                var d = new Date();
+                return d.getUTCSeconds();
+            }
+
+            function get_current_time() {
+                var time = $("#current_time");
+                time.text("Текущее время: "+ get_hour() + ":" + get_minutes() + ":" + get_seconds() + ", день недели: "+ get_weekday());
+                time.removeAttr("hidden");
+            }
+
+            function show_time_by(id, i, set_dir) {
+
+                var count_time = 10;
+                $(".dir"+set_dir).attr("href", id);
+                $("#stop_"+i).attr("href", id);
+                var wday = get_weekday();
+
+                function show_time_gt23(data) {
+
+                    var length = data.count;
+                    if (length == 0) {
+                        // $("#tr_"+i+ " #direction"+set_dir+"_"+i).append("Нет данных");
+                        $("#hour"+set_dir+"_"+i+"_"+0).prop("hidden", true);
+                        $("#minutes"+set_dir+"_"+i+"_"+0).text("Нет данных");
+                        // for (var k=length; k<count_time; k++) {
+                        //     $("#hour"+set_dir+"_"+i+"_"+k).prop("hidden", true);
+                        //     $("#minutes"+set_dir+"_"+i+"_"+k).prop("hidden", true);
+                        // }
+                        return ;
+                    }
+
+                    var idx = 0;
+                    if (length-count_time/2>0){
+                        for (var m=length-count_time/2; m<length; m++) {
+                            var hour_min_sec = data.resources[m].time.split(":");
+                            if (hour_min_sec[0]>=get_hour()) {
+                                $("#hour"+set_dir+"_"+i+"_"+idx).text(hour_min_sec[0]);
+                                $("#minutes"+set_dir+"_"+i+"_"+idx).text(hour_min_sec[1]);
+                                idx++;
+                            }
+                        }
+                    }
+                    var didx = idx;
+                    for (var j=0; j<count_time/2+didx; j++) {
+                        var hour_min_sec = data.resources[j].time.split(":");
+                        $("#hour"+set_dir+"_"+i+"_"+idx).text(hour_min_sec[0]);
+                        $("#minutes"+set_dir+"_"+i+"_"+idx).text(hour_min_sec[1]);
+                        idx++;
+                    }
+                }
+
+                function show_time(data) {
+
+                    var length = data.count;
+                    if (length == 0) {
+                        // $("#tr_"+i+ " #direction"+set_dir+"_"+i).append("Нет данных");
+                        $("#minutes"+set_dir+"_"+i+"_0").text("Нет данных");
+                        return ;
+                    }
+                    // если время в диапазоне от 22 и далее, но редкие, то показываем и утренние тоже
+                    if (length < count_time) {
+                        $.get("/api/1.0.0/waypointtime/?waypoint__id="+id+"&weekdays="+wday+"&adr-sort=time", "", show_time_gt23, "json");
+                    }
+                    else {
+                        for (var j=0; j<count_time; j++) {
+                            var hour_min_sec = data.resources[j].time.split(":");
+                            $("#hour"+set_dir+"_"+i+"_"+j).text(hour_min_sec[0]);
+                            $("#minutes"+set_dir+"_"+i+"_"+j).text(hour_min_sec[1]);
+                        }
+                    }
+                }
+
+
+                if (get_hour() >= 23) {
+                    $.get("/api/1.0.0/waypointtime/?waypoint__id="+id+"&weekdays="+wday+"&adr-sort=time", "", show_time_gt23, "json");
+                }
+                else {
+                    $.get("/api/1.0.0/waypointtime/?waypoint__id="+id+"&weekdays="+wday+"&time__gte="+get_hour()+":"+get_minutes()+"&adr-sort=time", "", show_time, "json");
+                }
+                // $.get("/api/1.0.0/waypointtime/?waypoint__id="+id+"&time__gt="+0+":"+0+"&adr-sort=time", "", show_time, "json");
+            }
+
+            function get_stops(e) {
+                e.preventDefault();
+                // $("#id_stop").data('source') = '';
+
+                var route = $('.active').data('value').split(' ');
+                var number = route[0]; var tat_type = route[1];
+                var err = $("#show_error");
+
+                function show_stops(data) {
+                    var COUNT = 400;
+                    var length = data.resources.length;
+                    var timetable = $("#timetable");
+                    // если нет данных, то не отображаем таблицу
+                    if (length == 0) {
+                        $("#have_times").prop("hidden", true);
+                        err.text("Увы и ах. Данных о таком маршруте нет.");
+                        err.removeAttr("hidden");
+                    }
+                    // если данные превышают COUNT, то позже рассмотрим
+                    else if (length < COUNT) { // COUNT -> CONST
+                        err.prop("hidden", true);
+                        var i = 0;
+                        var count = 0;
+                        var first_direction = data.resources[0].direction_title;
+                        $("#direction1").text(first_direction);
+                        while (first_direction == data.resources[i].direction_title) {
+                            $("#order_"+i).text(data.resources[i].order);
+                            $("#stop_"+i).text(data.resources[i].stop_title);
+                            show_time_by(data.resources[i].id, i, 1);
+                            i++;
+                            count++;
+                        }
+                        $("#direction2").text(data.resources[i].direction_title);
+                        var idx = 0;
+                        while ( i<length && first_direction != data.resources[i].direction_title) {
+                            show_time_by(data.resources[i].id, idx, 2);
+                            i++;
+                            idx++;
+                        }
+
+                        // скрываем лишние строки в таблице
+                        for (var k=count; k<COUNT; k++) {
+                            $("#tr_"+k).prop("hidden", true);
+                        }
+                        timetable.removeAttr("hidden");
+                    }
+                    else {
+                        err.text("Остановок больше COUNT");
+                        err.removeAttr("hidden");
+                    }
+                }
+
+                $.get("/tat_title="+number+"_"+tat_type, "", show_stops, "json");
+            }
+
+            // $(".input").on('keypress', '#route_form', get_current_time);
+            // $(".input").on('blur', '#route_form', get);
+            $(".input").on('change', '#route_form', get_stops);
+            $(".input").on('submit', '#route_form', function(e) {e.preventDefault();})
+
+
+            function show_time_for_route(id, idx) {
+
+                $(".more_"+idx).attr("href", id);
+                $("#title_route_"+idx).attr("href", id);
+
+                function show_time(data_times) {
+                    var COUNT = 200;
+                    var ln = data_times.count;
+                    for (var k=ln+1; k<COUNT; k++) {
+                        $("#hour_"+idx+"_"+k).prop("hidden", true);
+                        $("#minutes_"+idx+"_"+k).prop("hidden", true);
+                    }
+                    if (ln == 0) {
+                        $("#minutes_"+idx+"_"+0).text("Нет данных о времени маршрута");
+                        $("#hour_"+idx+"_"+0).prop("hidden", true);
+                    }
+                    else {
+                        for (var j=0; j<ln; j++) {
+                            $("#hour_"+idx+"_"+j).removeAttr("hidden");
+                            $("#minutes_"+idx+"_"+j).removeAttr("hidden");
+                            var hour_min_sec = data_times.resources[j].time.split(":");
+                            $("#hour_"+idx+"_"+j).text(hour_min_sec[0]);
+                            $("#minutes_"+idx+"_"+j).text(hour_min_sec[1]);
+                        }
+                    }
+                }
+
+                // $.get("/api/1.0.0/waypointtime/?waypoint__id="+id+"&weekdays="+get_weekday()+"&time__gte="+get_hour()+":"+get_minutes()+"&adr-sort=time", "", show_time, "json");
+                $.get("/api/1.0.0/waypointtime/?waypoint__id="+id+"&weekdays="+get_weekday()+"&adr-sort=time", "", show_time, "json");
+            }
+
+            function show_routes(data) {
+                var COUNT = 200;
+                var length = data.count;
+                var timetable = $("#route_timetable");
+                var err = $("#show_error");
+
+                // если нет данных, то не отображаем таблицу
+                if (length == 0) {
+                    timetable.prop("hidden", true);
+                    err.text("Увы и ах. Данных о таком маршруте нет.");
+                    err.removeAttr("hidden");
+                    return ;
+                }
+                // если данные превышают COUNT, то позже рассмотрим
+                else if (length < COUNT) { // COUNT -> CONST
+                    for (var i=0; i<length; i++) {
+                        $("#route_tr_"+i).removeAttr("hidden");
+                        err.prop("hidden", true);
+                        var d = data.resources[i];
+                        $("#title_route_"+i).text(d.route_title);
+                        $("#title_stop_"+i).text(d.stop_title);
+                        $("#little_direction_"+i).text(d.direction_title);
+                        $("#order_"+i).text("Номер на пути: "+d.order);
+                        show_time_for_route(d.id, i);
+                    }
+
+                    // скрываем лишние строки в таблице
+                    for (var k=length; k<COUNT; k++) {
+                        $("#route_tr_"+k).prop("hidden", true);
+                    }
+                    timetable.removeAttr("hidden");
+                }
+                else {
+                    err.text("Маршрутов больше COUNT");
+                    err.removeAttr("hidden");
+                }
+            }
+
+            function get_routes(e) {
+                e.preventDefault();
+                var stop = $('.active').data('value');
+                var err = $("#show_error");
+
+                err.text(stop);
+                err.removeAttr("hidden");
+
+                $.get("/stop="+stop, "", show_routes, "json");
+            }
+
+            $(".input").on('change', '#stop_form', get_routes);
+            $(".input").on('submit', '#stop_form', function(e) {e.preventDefault();})
+
+            function update_time() {
+                get_current_time();
+                setTimeout(update_time, 100);
+            }
+            update_time();
+
+        });
+
+        $('.ajax-typeahead').typeahead({
+            source: function(query, process) {
+                return $.ajax({
+                    url: $(this)[0].$element[0].dataset.link,
+                    type: 'get',
+                    data: {query: query},
+                    dataType: 'json',
+                    success: function(json) {
+                        return typeof json.options == 'undefined' ? false : process(json.options);
+                        // return process(["aaa", "aab"]);
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

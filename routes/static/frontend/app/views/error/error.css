@@ -1,0 +1,14 @@
+.view-error {
+    text-align: center;
+    color: #db2f40;
+}
+
+.view-error h1 {
+    margin-top: 0.6em;
+    font-size: 6em;
+}
+
+.view-error__icon {
+    text-align: center;
+    font-size: 100px;
+}

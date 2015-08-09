@@ -1,0 +1,37 @@
+html, body {
+    height: 100%; /* 568 */
+    position: relative;
+    overflow: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 100;
+    font-style: normal;
+}
+
+p {
+    font-weight: 300;
+    font-size: 18px;
+    margin: 0.7em 0;
+    font-style: normal;
+}
+
+.view-page {
+    font-family: 'Roboto', sans-serif;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+.view-page_theme_dark {
+    background-color: #333;
+    background-image: url('/img/bg-dark.jpg');
+    color: #FFF;
+}
+
+.view-page_theme_light {
+    background-color: #FFF;
+    background-image: url('/img/bg-light.jpg');
+    color: #333;
+}
